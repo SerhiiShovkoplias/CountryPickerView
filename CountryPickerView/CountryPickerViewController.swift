@@ -11,6 +11,7 @@ import UIKit
 public class CountryPickerViewController: UITableViewController {
 
     public var searchController: UISearchController?
+    public var hideNavigationBarDuringSearch: Bool = false
     fileprivate var searchResults = [Country]()
     fileprivate var isSearchMode = false
     fileprivate var sectionsTitles = [String]()
@@ -239,14 +240,18 @@ extension CountryPickerViewController: UISearchResultsUpdating {
 extension CountryPickerViewController: UISearchBarDelegate {
     public func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         // Hide the back/left navigationItem button
-        navigationItem.leftBarButtonItem = nil
-        navigationItem.hidesBackButton = true
+        if hideNavigationBarDuringSearch {
+            navigationItem.leftBarButtonItem = nil
+            navigationItem.hidesBackButton = true
+        }
     }
     
     public func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         // Show the back/left navigationItem button
-        prepareNavItem()
-        navigationItem.hidesBackButton = false
+        if hideNavigationBarDuringSearch {
+            prepareNavItem()
+            navigationItem.hidesBackButton = false
+        }
     }
 }
 
@@ -254,11 +259,17 @@ extension CountryPickerViewController: UISearchBarDelegate {
 // Fixes an issue where the search bar goes off screen sometimes.
 extension CountryPickerViewController: UISearchControllerDelegate {
     public func willPresentSearchController(_ searchController: UISearchController) {
-        self.navigationController?.navigationBar.isTranslucent = true
+        if hideNavigationBarDuringSearch {
+            prepareNavItem()
+            self.navigationController?.navigationBar.isTranslucent = true
+        }
     }
     
     public func willDismissSearchController(_ searchController: UISearchController) {
-        self.navigationController?.navigationBar.isTranslucent = false
+        if hideNavigationBarDuringSearch {
+            prepareNavItem()
+            self.navigationController?.navigationBar.isTranslucent = false
+        }
     }
 }
 
