@@ -22,7 +22,7 @@ public class CountryPickerViewController: UITableViewController {
     fileprivate var showOnlyPreferredSection: Bool {
         return dataSource.showOnlyPreferredSection
     }
-    internal weak var countryPickerView: CountryPickerView! {
+    public weak var countryPickerView: CountryPickerView! {
         didSet {
             dataSource = CountryPickerViewDataSourceInternal(view: countryPickerView)
         }
