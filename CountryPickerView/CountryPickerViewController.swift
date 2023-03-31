@@ -79,8 +79,14 @@ extension CountryPickerViewController {
         // Add a close button if this is the root view controller
         if navigationController?.viewControllers.count == 1 {
             let closeButton = dataSource.closeButtonNavigationItem
-            closeButton.target = self
-            closeButton.action = #selector(close)
+            
+            if closeButton.target == nil {
+                closeButton.target = self
+            }
+            
+            if closeButton.action == nil {
+                closeButton.action = #selector(close)
+            }
             navigationItem.leftBarButtonItem = closeButton
         }
     }
