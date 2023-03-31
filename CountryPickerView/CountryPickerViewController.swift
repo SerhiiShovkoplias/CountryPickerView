@@ -24,8 +24,9 @@ public class CountryPickerViewController: UITableViewController {
     fileprivate var showOnlyPreferredSection: Bool {
         return dataSource?.showOnlyPreferredSection == true
     }
-    public weak var countryPickerView: CountryPickerView! {
+    public weak var countryPickerView: CountryPickerView? {
         didSet {
+            guard let countryPickerView = countryPickerView else { return }
             dataSource = CountryPickerViewDataSourceInternal(view: countryPickerView)
         }
     }
@@ -46,7 +47,8 @@ public class CountryPickerViewController: UITableViewController {
 extension CountryPickerViewController {
     
     func prepareTableItems()  {
-        guard let dataSource = dataSource else { return }
+        guard let countryPickerView = countryPickerView,
+              let dataSource = dataSource else { return }
 
         if !showOnlyPreferredSection {
             let countriesArray = countryPickerView.usableCountries
@@ -135,7 +137,8 @@ extension CountryPickerViewController {
     }
     
     override public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let dataSource = dataSource else { return UITableViewCell() }
+        guard let countryPickerView = countryPickerView,
+              let dataSource = dataSource else { return UITableViewCell() }
 
         let identifier = String(describing: CountryTableViewCell.self)
         
@@ -211,19 +214,23 @@ extension CountryPickerViewController {
         searchController?.isActive = false
         searchController?.dismiss(animated: false, completion: nil)
         
-        let completion = {
-            self.countryPickerView.selectedCountry = country
+        let completion = { [weak self] in
+            self?.countryPickerView?.selectedCountry = country
         }
         
-        if !countryPickerView.dismissControllerAfterSelect {
+        if countryPickerView?.dismissControllerAfterSelect == false {
             completion()
             return
         }
         // If this is root, dismiss, else pop
         if navigationController?.viewControllers.count == 1 {
-            navigationController?.dismiss(animated: true, completion: completion)
+            navigationController?.dismiss(animated: true, completion: {
+                completion()
+            })
         } else {
-            navigationController?.popViewController(animated: true, completion: completion)
+            navigationController?.popViewController(animated: true, completion: {
+                completion()
+            })
         }
     }
 }
@@ -313,53 +320,64 @@ class CountryTableViewCell: UITableViewCell {
 // Returns default options where necessary if the data source is not set.
 class CountryPickerViewDataSourceInternal: CountryPickerViewDataSource {
     
-    private unowned var view: CountryPickerView
+    private weak var view: CountryPickerView?
     
     init(view: CountryPickerView) {
         self.view = view
     }
     
     var preferredCountries: [Country] {
+        guard let view = view else { return [Country]() }
         return view.dataSource?.preferredCountries(in: view) ?? preferredCountries(in: view)
     }
     
     var preferredCountriesSectionTitle: String? {
+        guard let view = view else { return nil }
         return view.dataSource?.sectionTitleForPreferredCountries(in: view)
     }
     
     var showOnlyPreferredSection: Bool {
+        guard let view = view else { return false }
         return view.dataSource?.showOnlyPreferredSection(in: view) ?? showOnlyPreferredSection(in: view)
     }
     
     var sectionTitleLabelFont: UIFont {
+        guard let view = view else { return UIFont.systemFont(ofSize: UIFont.systemFontSize) }
         return view.dataSource?.sectionTitleLabelFont(in: view) ?? sectionTitleLabelFont(in: view)
     }
 
     var sectionTitleLabelColor: UIColor? {
+        guard let view = view else { return nil }
         return view.dataSource?.sectionTitleLabelColor(in: view)
     }
     
     var cellLabelFont: UIFont {
+        guard let view = view else { return UIFont.systemFont(ofSize: UIFont.systemFontSize) }
         return view.dataSource?.cellLabelFont(in: view) ?? cellLabelFont(in: view)
     }
     
     var cellLabelColor: UIColor? {
+        guard let view = view else { return nil }
         return view.dataSource?.cellLabelColor(in: view)
     }
     
     var cellImageViewSize: CGSize {
+        guard let view = view else { return .zero }
         return view.dataSource?.cellImageViewSize(in: view) ?? cellImageViewSize(in: view)
     }
     
     var cellImageViewCornerRadius: CGFloat {
+        guard let view = view else { return 0.0 }
         return view.dataSource?.cellImageViewCornerRadius(in: view) ?? cellImageViewCornerRadius(in: view)
     }
     
     var navigationTitle: String? {
+        guard let view = view else { return nil }
         return view.dataSource?.navigationTitle(in: view)
     }
     
     var closeButtonNavigationItem: UIBarButtonItem {
+        guard let view = view else { return UIBarButtonItem() }
         guard let button = view.dataSource?.closeButtonNavigationItem(in: view) else {
             return UIBarButtonItem(title: "Close", style: .done, target: nil, action: nil)
         }
@@ -367,26 +385,32 @@ class CountryPickerViewDataSourceInternal: CountryPickerViewDataSource {
     }
     
     var searchBarPosition: SearchBarPosition {
+        guard let view = view else { return .hidden }
         return view.dataSource?.searchBarPosition(in: view) ?? searchBarPosition(in: view)
     }
     
     var showPhoneCodeInList: Bool {
+        guard let view = view else { return false }
         return view.dataSource?.showPhoneCodeInList(in: view) ?? showPhoneCodeInList(in: view)
     }
     
     var showCountryCodeInList: Bool {
+        guard let view = view else { return false }
         return view.dataSource?.showCountryCodeInList(in: view) ?? showCountryCodeInList(in: view)
     }
     
     var showCheckmarkInList: Bool {
+        guard let view = view else { return false }
         return view.dataSource?.showCheckmarkInList(in: view) ?? showCheckmarkInList(in: view)
     }
     
     var localeForCountryNameInList: Locale {
+        guard let view = view else { return Locale.current }
         return view.dataSource?.localeForCountryNameInList(in: view) ?? localeForCountryNameInList(in: view)
     }
     
     var excludedCountries: [Country] {
+        guard let view = view else { return [Country]() }
         return view.dataSource?.excludedCountries(in: view) ?? excludedCountries(in: view)
     }
 }
