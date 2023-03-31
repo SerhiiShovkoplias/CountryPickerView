@@ -37,6 +37,8 @@ public func !=(lhs: Country, rhs: Country) -> Bool {
 
 
 public class CountryPickerView: NibView {
+    public var dismissControllerAfterSelect: Bool = true
+    
     @IBOutlet weak var spacingConstraint: NSLayoutConstraint!
     @IBOutlet public weak var flagImageView: UIImageView! {
         didSet {

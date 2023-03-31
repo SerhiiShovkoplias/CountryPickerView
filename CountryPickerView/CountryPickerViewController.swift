@@ -17,11 +17,12 @@ public class CountryPickerViewController: UITableViewController {
     fileprivate var sectionsTitles = [String]()
     fileprivate var countries = [String: [Country]]()
     fileprivate var hasPreferredSection: Bool {
+        guard let dataSource = dataSource else { return false }
         return dataSource.preferredCountriesSectionTitle != nil &&
             dataSource.preferredCountries.count > 0
     }
     fileprivate var showOnlyPreferredSection: Bool {
-        return dataSource.showOnlyPreferredSection
+        return dataSource?.showOnlyPreferredSection == true
     }
     public weak var countryPickerView: CountryPickerView! {
         didSet {
@@ -29,7 +30,7 @@ public class CountryPickerViewController: UITableViewController {
         }
     }
     
-    fileprivate var dataSource: CountryPickerViewDataSourceInternal!
+    fileprivate var dataSource: CountryPickerViewDataSourceInternal?
     
     override public func viewDidLoad() {
         super.viewDidLoad()
@@ -45,6 +46,8 @@ public class CountryPickerViewController: UITableViewController {
 extension CountryPickerViewController {
     
     func prepareTableItems()  {
+        guard let dataSource = dataSource else { return }
+
         if !showOnlyPreferredSection {
             let countriesArray = countryPickerView.usableCountries
             let locale = dataSource.localeForCountryNameInList
@@ -74,6 +77,8 @@ extension CountryPickerViewController {
     }
     
     func prepareNavItem() {
+        guard let dataSource = dataSource else { return }
+
         navigationItem.title = dataSource.navigationTitle
 
         // Add a close button if this is the root view controller
@@ -92,6 +97,8 @@ extension CountryPickerViewController {
     }
     
     func prepareSearchBar() {
+        guard let dataSource = dataSource else { return }
+
         let searchBarPosition = dataSource.searchBarPosition
         if searchBarPosition == .hidden  {
             return
@@ -128,6 +135,8 @@ extension CountryPickerViewController {
     }
     
     override public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let dataSource = dataSource else { return UITableViewCell() }
+
         let identifier = String(describing: CountryTableViewCell.self)
         
         let cell = tableView.dequeueReusableCell(withIdentifier: identifier) as? CountryTableViewCell
@@ -187,8 +196,8 @@ extension CountryPickerViewController {
 
     override public func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
         if let header = view as? UITableViewHeaderFooterView {
-            header.textLabel?.font = dataSource.sectionTitleLabelFont
-            if let color = dataSource.sectionTitleLabelColor {
+            header.textLabel?.font = dataSource?.sectionTitleLabelFont
+            if let color = dataSource?.sectionTitleLabelColor {
                 header.textLabel?.textColor = color
             }
         }
@@ -205,6 +214,11 @@ extension CountryPickerViewController {
         let completion = {
             self.countryPickerView.selectedCountry = country
         }
+        
+        if !countryPickerView.dismissControllerAfterSelect {
+            completion()
+            return
+        }
         // If this is root, dismiss, else pop
         if navigationController?.viewControllers.count == 1 {
             navigationController?.dismiss(animated: true, completion: completion)
@@ -217,7 +231,10 @@ extension CountryPickerViewController {
 // MARK:- UISearchResultsUpdating
 extension CountryPickerViewController: UISearchResultsUpdating {
     public func updateSearchResults(for searchController: UISearchController) {
+        guard let dataSource = dataSource else { return }
+
         isSearchMode = false
+        
         if let text = searchController.searchBar.text, text.count > 0 {
             isSearchMode = true
             searchResults.removeAll()
