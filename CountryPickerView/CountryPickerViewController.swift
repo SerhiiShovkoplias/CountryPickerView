@@ -95,6 +95,17 @@ extension CountryPickerViewController {
                 closeButton.action = #selector(close)
             }
             navigationItem.leftBarButtonItem = closeButton
+            
+            if let doneButton = dataSource.doneButtonNavigationItem {
+                if doneButton.target == nil {
+                    doneButton.target = self
+                }
+                
+                if doneButton.action == nil {
+                    doneButton.action = #selector(done)
+                }
+                navigationItem.rightBarButtonItem = doneButton
+            }
         }
     }
     
@@ -121,6 +132,10 @@ extension CountryPickerViewController {
     }
     
     @objc private func close() {
+        self.navigationController?.dismiss(animated: true, completion: nil)
+    }
+    
+    @objc private func done() {
         self.navigationController?.dismiss(animated: true, completion: nil)
     }
 }
@@ -380,6 +395,14 @@ class CountryPickerViewDataSourceInternal: CountryPickerViewDataSource {
         guard let view = view else { return UIBarButtonItem() }
         guard let button = view.dataSource?.closeButtonNavigationItem(in: view) else {
             return UIBarButtonItem(title: "Close", style: .done, target: nil, action: nil)
+        }
+        return button
+    }
+    
+    var doneButtonNavigationItem: UIBarButtonItem? {
+        guard let view,
+              let button = view.dataSource?.doneButtonNavigationItem(in: view) else {
+            return nil
         }
         return button
     }

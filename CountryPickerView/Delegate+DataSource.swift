@@ -63,6 +63,10 @@ public protocol CountryPickerViewDataSource: class {
     /// Return `nil` to use a default "Close" button.
     func closeButtonNavigationItem(in countryPickerView: CountryPickerView) -> UIBarButtonItem?
     
+    /// A navigation item button to be used if the internal view controller is presented(not pushed).
+    /// Return `nil` to use nothing
+    func doneButtonNavigationItem(in countryPickerView: CountryPickerView) -> UIBarButtonItem?
+    
     /// The desired position for the search bar.
     func searchBarPosition(in countryPickerView: CountryPickerView) -> SearchBarPosition
     
@@ -128,6 +132,10 @@ public extension CountryPickerViewDataSource {
     }
     
     func closeButtonNavigationItem(in countryPickerView: CountryPickerView) -> UIBarButtonItem? {
+        return nil
+    }
+    
+    func doneButtonNavigationItem(in countryPickerView: CountryPickerView) -> UIBarButtonItem? {
         return nil
     }
     
