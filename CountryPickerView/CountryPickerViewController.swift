@@ -40,6 +40,18 @@ public class CountryPickerViewController: UITableViewController {
         prepareNavItem()
         prepareSearchBar()
     }
+    
+    public override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        if isMovingFromParent ||
+            isBeingDismissed ||
+            navigationController?.isMovingFromParent == true ||
+            navigationController?.isBeingDismissed == true {
+            if let countryPickerView = countryPickerView {
+                countryPickerView.delegate?.countryPickerView(countryPickerView, didHide: self)
+            }
+        }
+    }
    
 }
 

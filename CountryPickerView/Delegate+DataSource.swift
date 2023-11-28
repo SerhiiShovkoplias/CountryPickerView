@@ -17,6 +17,9 @@ public protocol CountryPickerViewDelegate: class {
     /// The CountryPickerViewController is a UITableViewController subclass.
     func countryPickerView(_ countryPickerView: CountryPickerView, willShow viewController: CountryPickerViewController)
     
+    /// Called when the internal CountryPickerViewController has been dismissed.
+    func countryPickerView(_ countryPickerView: CountryPickerView,
+                           didHide viewController: CountryPickerViewController)
     /// Called after the internal CountryPickerViewController is presented or pushed.
     /// If the CountryPickerViewController is presented(not pushed), it is embedded in a UINavigationController.
     /// The CountryPickerViewController is a UITableViewController subclass.
@@ -174,6 +177,10 @@ public extension CountryPickerViewDelegate {
     
     func countryPickerView(_ countryPickerView: CountryPickerView,
                            didShow viewController: CountryPickerViewController) {
+    }
+    
+    func countryPickerView(_ countryPickerView: CountryPickerView,
+                           didHide viewController: CountryPickerViewController) {
     }
 
 }
