@@ -117,6 +117,7 @@ extension CountryPickerViewController {
                     doneButton.action = #selector(done)
                 }
                 navigationItem.rightBarButtonItem = doneButton
+                navigationItem.rightBarButtonItem?.isEnabled = false
             }
         }
     }
@@ -129,6 +130,7 @@ extension CountryPickerViewController {
             return
         }
         searchController = UISearchController(searchResultsController:  nil)
+        searchController?.automaticallyShowsCancelButton = false
         searchController?.searchResultsUpdater = self
         searchController?.dimsBackgroundDuringPresentation = false
         searchController?.hidesNavigationBarDuringPresentation = searchBarPosition == .tableViewHeader
@@ -235,12 +237,21 @@ extension CountryPickerViewController {
     
     override public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        
+        if let doneButtonNavigationItem = dataSource?.doneButtonNavigationItem {
+            navigationItem.rightBarButtonItem?.isEnabled = true
+        }
+
         let country = isSearchMode ? searchResults[indexPath.row]
             : countries[sectionsTitles[indexPath.section]]![indexPath.row]
 
-        searchController?.isActive = false
+        if searchController?.searchBar.text?.isEmpty == true {
+            searchController?.isActive = false
+        } else {
+            searchController?.resignFirstResponder()
+        }
         searchController?.dismiss(animated: false, completion: nil)
-        
+
         let completion = { [weak self] in
             self?.countryPickerView?.selectedCountry = country
         }
